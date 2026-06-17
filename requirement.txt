@@ -1,5 +1,3 @@
-[project]
-name = "Order_Smoothie"
-dependencies = [
-    "streamlit[snowflake]"
-]
+# requirement.txt
+snowflake-snowpark-python
+streamlit
