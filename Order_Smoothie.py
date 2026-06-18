@@ -1,5 +1,6 @@
 # Import python packages
 import streamlit as st
+import pandas as pd
 from snowflake.snowpark.functions import col
 import requests
 import os
@@ -13,7 +14,9 @@ st.write(
 
 cnx = st.connection("snowflake")
 session = cnx.session()
-my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
+my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'),col('SEARCH_ON'))
+pd_df = my_dataframe.to_pandas()
+st.dataframe(pd_df)
 
 name_for_order = st.text_input('Enter your Name: ')
 
@@ -29,8 +32,9 @@ if ingredients_list:
 
     if ingredients_string:
         for fruit_choice in ingredients_list:
+            search_on = pd_df.loc[pd_df['FRUIT_NAME'] == fruit_choice, 'SEARCH_ON'].iloc[0]
             st.subheader(fruit_choice + ' Nutrition Information')
-            smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/" + fruit_choice)        
+            smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/" + search_on)        
             sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
       
         my_insert_statement = """ insert into smoothies.public.orders(ingredients, name, filled) values('""" + ingredients_string + """', '""" + name_for_order + """', 0)"""
