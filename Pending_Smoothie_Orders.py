@@ -1,7 +1,6 @@
 # Import python packages
 import streamlit as st
 import pandas as pd
-from snowflake.snowpark.context import get_active_session 
 from snowflake.snowpark.functions import col
 from snowflake.snowpark.functions import when_matched
 import os
@@ -12,7 +11,8 @@ st.write(
   """Orders that need to be filled!
   """
 )
-session = get_active_session()
+cnx = st.connection("snowflake")
+session = cnx.session()
 df=session.table("smoothies.public.orders").filter(col("Filled")==0).collect()
 my_dataframe = pd.DataFrame(df)
 
